@@ -28,7 +28,8 @@ import {
 } from "./modules/trips/index.js";
 const app = express();
 app.use(helmet());
-const allowedOrigins = [
+
+const defaultAllowedOrigins = [
     "http://localhost:5174", // Tourist App
     "http://localhost:5173", // Guide Dashboard
     "http://localhost:5175", // Driver Dashboard
@@ -36,14 +37,29 @@ const allowedOrigins = [
     "http://localhost:5177", // Admin Dashboard
 ];
 
+const configuredOrigins = (process.env.CORS_ORIGINS ?? "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+const allowedOrigins = [...new Set([...defaultAllowedOrigins, ...configuredOrigins])];
+
+const isAllowedOrigin = (origin: string) => {
+    if (!origin) {
+        return true;
+    }
+
+    if (allowedOrigins.includes(origin)) {
+        return true;
+    }
+
+    return /^https:\/\/[a-z0-9-]+\.vercel\.app$/i.test(origin);
+};
+
 app.use(
     cors({
         origin(origin, callback) {
-            if (!origin) {
-                return callback(null, true);
-            }
-
-            if (allowedOrigins.includes(origin)) {
+            if (isAllowedOrigin(origin ?? "")) {
                 return callback(null, true);
             }
 
