@@ -1,0 +1,1 @@
+export { default as hotelRouter } from "./hotel.routes.js";

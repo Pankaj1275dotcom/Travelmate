@@ -1,0 +1,1 @@
+export { default as adminUserRouter } from "./admin-user.routes.js";

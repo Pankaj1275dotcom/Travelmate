@@ -1,0 +1,1 @@
+export { default as hotelImageRouter } from "./hotel-image.routes.js";

@@ -1,0 +1,1 @@
+export { default as roomTypeRouter } from "./room-type.routes.js";

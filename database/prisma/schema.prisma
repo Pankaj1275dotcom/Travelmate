@@ -1,0 +1,979 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  TOURIST
+  HOTEL_OWNER
+  GUIDE
+  DRIVER
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
+enum GuideApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum DriverApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum HotelApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum RoomStatus {
+  AVAILABLE
+  MAINTENANCE
+}
+
+enum BookingType {
+  HOTEL
+  GUIDE
+  DRIVER
+}
+
+enum BookingStatus {
+  PENDING
+  PARTIALLY_CONFIRMED
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum BookingItemStatus {
+  PENDING
+  REQUEST_SENT
+  ACCEPTED
+  PAYMENT_PENDING
+  CONFIRMED
+  REJECTED
+  CANCELLED
+  COMPLETED
+  EXPIRED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  RAZORPAY
+  STRIPE
+}
+
+enum ServiceRequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  PAYMENT_EXPIRED
+  CANCELLED
+}
+
+enum ProviderType {
+  GUIDE
+  DRIVER
+}
+
+enum PaymentSplitStatus {
+  PENDING
+  RELEASED
+}
+
+enum NotificationType {
+  GUIDE_REQUEST
+  DRIVER_REQUEST
+  REQUEST_ACCEPTED
+  REQUEST_REJECTED
+  PAYMENT_PENDING
+  PAYMENT_SUCCESS
+  BOOKING_CONFIRMED
+  BOOKING_CANCELLED
+}
+
+enum NotificationStatus {
+  UNREAD
+  READ
+}
+
+enum TripStatus {
+  UPCOMING
+  READY_TO_START
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum TripVerificationType {
+  QR
+  OTP
+  START
+  COMPLETE
+}
+
+enum TripVerificationStatus {
+  PENDING
+  VERIFIED
+  EXPIRED
+}
+
+enum ConversationStatus {
+  ACTIVE
+  CLOSED
+}
+
+enum MessageType {
+  TEXT
+}
+
+enum AuthVerificationType {
+  EMAIL
+  PHONE
+  PASSWORD_RESET
+}
+
+model User {
+  id String @id @default(uuid())
+
+  firstName String
+  lastName  String
+
+  email String @unique
+  phone String @unique
+
+  password String
+
+  role           Role           @default(TOURIST)
+  approvalStatus ApprovalStatus @default(APPROVED)
+
+  emailVerified Boolean @default(false)
+  phoneVerified Boolean @default(false)
+  isActive      Boolean @default(true)
+
+  profileImage String?
+
+  hotels Hotel[]
+  guide  Guide?
+  driver Driver?
+
+  cart              TripCart?
+  bookings          Booking[]
+  authVerifications AuthVerification[]
+
+  bookingRequests BookingRequest[] @relation("TouristBookingRequests")
+
+  wishlists                Wishlist[]
+  conversationParticipants ConversationParticipant[]
+
+  sentMessages      Message[] @relation("MessageSender")
+  lastLoginAt       DateTime?
+  passwordChangedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+  @@index([role])
+  @@index([approvalStatus])
+}
+
+model AuthVerification {
+  id String @id @default(cuid())
+
+  userId String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type AuthVerificationType
+
+  target String
+
+  code String
+
+  expiresAt DateTime
+
+  verifiedAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, type])
+  @@index([target, type])
+  @@index([expiresAt])
+}
+
+model Hotel {
+  id String @id @default(uuid())
+
+  ownerId String
+  owner   User   @relation(fields: [ownerId], references: [id])
+
+  roomTypes RoomType[]
+  wishlists Wishlist[]
+
+  // Basic Information
+  name      String
+  hotelType String
+
+  description String
+
+  // Contact
+  email String
+  phone String
+
+  // Address
+  address String
+  city    String
+  state   String
+  country String
+  zipCode String
+
+  // Location
+  latitude  Float?
+  longitude Float?
+  mapUrl    String?
+
+  // Media
+  coverImage String?
+
+  images HotelImage[]
+
+  // Hotel Facilities
+  hasParking      Boolean @default(false)
+  hasRestaurant   Boolean @default(false)
+  hasSwimmingPool Boolean @default(false)
+  hasGym          Boolean @default(false)
+  hasLaundry      Boolean @default(false)
+  hasRoomService  Boolean @default(false)
+  hasLift         Boolean @default(false)
+  hasPowerBackup  Boolean @default(false)
+
+  // Timing
+  checkInTime  String?
+  checkOutTime String?
+
+  // Rating
+  rating Float @default(0)
+
+  // Approval
+  isApproved Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([ownerId])
+  @@index([city])
+  @@index([isApproved])
+}
+
+model RoomType {
+  id String @id @default(uuid())
+
+  hotelId String
+  hotel   Hotel  @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+
+  name        String
+  description String?
+
+  pricePerNight Float
+
+  capacity Int
+
+  totalRooms Int
+
+  startingRoomNumber Int
+
+  bedType String?
+
+  roomSize String?
+
+  images Json?
+
+  amenities Json?
+
+  rooms Room[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([hotelId])
+}
+
+model Room {
+  id String @id @default(uuid())
+
+  roomTypeId String
+
+  roomType RoomType @relation(fields: [roomTypeId], references: [id], onDelete: Cascade)
+
+  roomNumber String
+
+  status RoomStatus @default(AVAILABLE)
+
+  bookingItems BookingItem[]
+
+  cartItems TripCartItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([roomTypeId, roomNumber])
+  @@index([roomTypeId])
+}
+
+model Guide {
+  id String @id @default(cuid())
+
+  userId String @unique
+
+  fullName String
+  phone    String
+
+  bio String?
+
+  city String
+
+  experience Int @default(0)
+
+  languages String
+
+  pricePerHour Decimal @db.Decimal(10, 2)
+  pricePerDay  Decimal @db.Decimal(10, 2)
+
+  rating       Float @default(0)
+  totalReviews Int   @default(0)
+
+  isAvailable Boolean @default(true)
+
+  vacationMode Boolean @default(false)
+
+  workingDays String @default("MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY")
+
+  workingStartTime String @default("09:00")
+
+  workingEndTime String @default("18:00")
+
+  approvalStatus GuideApprovalStatus @default(PENDING)
+
+  bookingItems BookingItem[]
+
+  bookingRequests BookingRequest[] @relation("GuideBookingRequests")
+
+  cartItems TripCartItem[]
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([city])
+  @@index([approvalStatus])
+}
+
+model Driver {
+  id String @id @default(cuid())
+
+  userId String @unique
+
+  fullName String
+  phone    String
+
+  bio String?
+
+  city String
+
+  experience Int @default(0)
+
+  // Vehicle Details
+  vehicleType    String
+  vehicleBrand   String
+  vehicleModel   String
+  vehicleNumber  String  @unique
+  vehicleColor   String?
+  seatCapacity   Int
+  airConditioned Boolean @default(true)
+
+  // Pricing
+  pricePerHour Decimal @db.Decimal(10, 2)
+  pricePerDay  Decimal @db.Decimal(10, 2)
+
+  // Ratings
+  rating       Float @default(0)
+  totalReviews Int   @default(0)
+
+  // Availability
+  isAvailable Boolean @default(true)
+
+  vacationMode Boolean @default(false)
+
+  workingDays String @default("MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY")
+
+  workingStartTime String @default("09:00")
+
+  workingEndTime String @default("18:00")
+
+  approvalStatus DriverApprovalStatus @default(PENDING)
+
+  bookingItems BookingItem[]
+
+  bookingRequests BookingRequest[] @relation("DriverBookingRequests")
+
+  cartItems TripCartItem[]
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([city])
+  @@index([approvalStatus])
+  @@index([vehicleType])
+}
+
+model HotelImage {
+  id String @id @default(uuid())
+
+  hotelId String
+
+  hotel Hotel @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+
+  url String
+
+  publicId String
+
+  createdAt DateTime @default(now())
+
+  @@index([hotelId])
+}
+
+model TripCart {
+  id String @id @default(cuid())
+
+  userId String @unique
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  totalAmount Decimal @default(0) @db.Decimal(10, 2)
+
+  platformFee Decimal @default(0) @db.Decimal(10, 2)
+
+  payableAmount Decimal @default(0) @db.Decimal(10, 2)
+
+  isCheckedOut Boolean @default(false)
+
+  checkedOutAt DateTime?
+
+  items TripCartItem[]
+
+  bookings Booking[]
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model TripCartItem {
+  id String @id @default(cuid())
+
+  cartId String
+
+  cart TripCart @relation(fields: [cartId], references: [id], onDelete: Cascade)
+
+  bookingType BookingType
+
+  roomId   String?
+  guideId  String?
+  driverId String?
+
+  room   Room?   @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  guide  Guide?  @relation(fields: [guideId], references: [id], onDelete: Cascade)
+  driver Driver? @relation(fields: [driverId], references: [id], onDelete: Cascade)
+
+  // -------------------------
+  // Hotel Booking
+  // -------------------------
+  checkIn  DateTime?
+  checkOut DateTime?
+
+  // -------------------------
+  // Guide Booking
+  // -------------------------
+  guideStartDate DateTime?
+  guideEndDate   DateTime?
+
+  guideStartTime String?
+  guideEndTime   String?
+
+  guideRequestedHours Int?
+
+  // -------------------------
+  // Driver Booking
+  // -------------------------
+  driverStartDate DateTime?
+  driverEndDate   DateTime?
+
+  driverStartTime      String?
+  driverEndTime        String?
+  driverRequestedHours Int?
+  quantity             Int     @default(1)
+
+  unitPrice Decimal @db.Decimal(10, 2)
+
+  totalPrice Decimal @db.Decimal(10, 2)
+
+  status BookingItemStatus @default(PENDING)
+
+  requestStatus ServiceRequestStatus?
+
+  requestSentAt DateTime?
+
+  requestExpiresAt DateTime?
+
+  acceptedAt DateTime?
+
+  paymentDueAt DateTime?
+
+  paidAt DateTime?
+
+  confirmedAt DateTime?
+
+  rejectionReason String?
+
+  notes String?
+
+  bookingItems BookingItem[]
+
+  requests BookingRequest[]
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  @@index([cartId])
+  @@index([bookingType])
+  @@index([roomId])
+  @@index([guideId])
+  @@index([driverId])
+  @@index([status])
+  @@index([requestStatus])
+  @@index([guideStartDate])
+  @@index([driverStartDate])
+}
+
+model BookingRequest {
+  id String @id @default(cuid())
+
+  cartItemId String
+
+  cartItem TripCartItem @relation(fields: [cartItemId], references: [id], onDelete: Cascade)
+
+  touristId String
+
+  tourist      User         @relation("TouristBookingRequests", fields: [touristId], references: [id], onDelete: Cascade)
+  providerType ProviderType
+
+  guideId  String?
+  driverId String?
+
+  guide Guide? @relation("GuideBookingRequests", fields: [guideId], references: [id], onDelete: Cascade)
+
+  driver Driver? @relation("DriverBookingRequests", fields: [driverId], references: [id], onDelete: Cascade)
+
+  status ServiceRequestStatus @default(PENDING)
+
+  requestedAt DateTime @default(now())
+
+  expiresAt DateTime
+
+  respondedAt DateTime?
+
+  paymentDeadline DateTime?
+
+  paymentCompletedAt DateTime?
+
+  rejectionReason String?
+  hiddenForGuide  Boolean @default(false)
+
+  hiddenForDriver Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  @@index([cartItemId])
+  @@index([touristId])
+  @@index([guideId])
+  @@index([driverId])
+  @@index([status])
+  @@index([expiresAt])
+}
+
+model Booking {
+  id String @id @default(cuid())
+
+  bookingNumber String @unique
+
+  userId String
+
+  cartId String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  cart TripCart? @relation(fields: [cartId], references: [id], onDelete: SetNull)
+
+  totalAmount Decimal @db.Decimal(10, 2)
+
+  platformFee Decimal @default(0) @db.Decimal(10, 2)
+
+  payableAmount Decimal @db.Decimal(10, 2)
+
+  status BookingStatus @default(PENDING)
+
+  paymentStatus PaymentStatus @default(PENDING)
+
+  adults Int @default(1)
+
+  children Int @default(0)
+
+  startDate DateTime
+
+  endDate DateTime
+
+  specialRequest String?
+
+  paidAt DateTime?
+
+  confirmedAt DateTime?
+
+  cancelledAt DateTime?
+
+  cancellationReason String?
+
+  items BookingItem[]
+
+  payment Payment?
+
+  createdAt DateTime @default(now())
+
+  updatedAt      DateTime   @updatedAt
+  tripStatus     TripStatus @default(UPCOMING)
+  hotelDismissed Boolean    @default(false)
+  tripPass       TripPass?
+
+  tripTimeline TripTimeline[]
+
+  tripVerifications TripVerification[]
+  conversation      Conversation?
+
+  @@index([userId])
+  @@index([cartId])
+  @@index([status])
+  @@index([paymentStatus])
+  @@index([bookingNumber])
+}
+
+model BookingItem {
+  id String @id @default(cuid())
+
+  bookingId String
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  bookingType BookingType
+
+  roomId   String?
+  guideId  String?
+  driverId String?
+
+  room   Room?   @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  guide  Guide?  @relation(fields: [guideId], references: [id], onDelete: Cascade)
+  driver Driver? @relation(fields: [driverId], references: [id], onDelete: Cascade)
+
+  cartItemId String?
+
+  cartItem          TripCartItem?      @relation(fields: [cartItemId], references: [id], onDelete: SetNull)
+  tripVerifications TripVerification[]
+  // -------------------------
+  // Hotel Booking
+  // -------------------------
+  checkIn           DateTime?
+  checkOut          DateTime?
+
+  // -------------------------
+  // Guide Booking
+  // -------------------------
+  guideStartDate DateTime?
+  guideEndDate   DateTime?
+
+  guideStartTime String?
+  guideEndTime   String?
+
+  guideRequestedHours Int?
+
+  // -------------------------
+  // Driver Booking
+  // -------------------------
+  driverStartDate DateTime?
+  driverEndDate   DateTime?
+
+  driverStartTime      String?
+  driverEndTime        String?
+  driverRequestedHours Int?
+  quantity             Int     @default(1)
+
+  unitPrice Decimal @db.Decimal(10, 2)
+
+  totalPrice Decimal @db.Decimal(10, 2)
+
+  platformFee Decimal @default(0) @db.Decimal(10, 2)
+
+  providerAmount Decimal @default(0) @db.Decimal(10, 2)
+
+  status BookingItemStatus @default(PENDING)
+
+  paymentStatus PaymentStatus @default(PENDING)
+
+  paidAt DateTime?
+
+  confirmedAt DateTime?
+
+  completedAt DateTime?
+
+  cancelledAt DateTime?
+
+  cancellationReason String?
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  @@index([bookingId])
+  @@index([bookingType])
+  @@index([roomId])
+  @@index([guideId])
+  @@index([driverId])
+  @@index([cartItemId])
+  @@index([status])
+  @@index([paymentStatus])
+  @@index([guideStartDate])
+  @@index([driverStartDate])
+}
+
+model Payment {
+  id String @id @default(cuid())
+
+  bookingId String @unique
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  amount Decimal @db.Decimal(10, 2)
+
+  platformFee Decimal @default(0) @db.Decimal(10, 2)
+
+  providerAmount Decimal @default(0) @db.Decimal(10, 2)
+
+  method PaymentMethod
+
+  status PaymentStatus @default(PENDING)
+
+  transactionId String?
+
+  gatewayPaymentId String?
+
+  gatewayOrderId String?
+
+  gatewaySignature String?
+
+  paidAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([paidAt])
+}
+
+model TripPass {
+  id String @id @default(cuid())
+
+  bookingId String @unique
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  qrToken String @unique
+
+  startOtp String?
+
+  completionOtp String?
+
+  otpExpiresAt DateTime?
+
+  qrExpiresAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  @@index([bookingId])
+  @@index([qrToken])
+}
+
+model TripVerification {
+  id String @id @default(cuid())
+
+  bookingId String
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  bookingItemId String?
+
+  bookingItem BookingItem? @relation(fields: [bookingItemId], references: [id], onDelete: Cascade)
+
+  verificationType   TripVerificationType
+  verificationStatus TripVerificationStatus @default(PENDING)
+
+  verifiedBy Role
+
+  verifiedAt DateTime?
+
+  otp String?
+
+  qrToken String?
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  @@index([bookingId])
+  @@index([bookingItemId])
+}
+
+model TripTimeline {
+  id String @id @default(cuid())
+
+  bookingId String
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  title   String
+
+  description String?
+
+  createdBy Role?
+
+  createdAt DateTime @default(now())
+
+  @@index([bookingId])
+}
+
+model Wishlist {
+  id String @id @default(cuid())
+
+  userId  String
+  hotelId String
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hotel Hotel @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, hotelId])
+  @@index([userId])
+  @@index([hotelId])
+}
+
+model Conversation {
+  id String @id @default(cuid())
+
+  bookingId String @unique
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  status ConversationStatus @default(ACTIVE)
+
+  lastMessage String?
+
+  lastMessageAt DateTime?
+
+  participants ConversationParticipant[]
+
+  messages Message[]
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([lastMessageAt])
+}
+
+model ConversationParticipant {
+  id String @id @default(cuid())
+
+  conversationId String
+
+  userId String
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  unreadCount Int @default(0)
+
+  lastReadAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@unique([conversationId, userId])
+  @@index([conversationId])
+  @@index([userId])
+}
+
+model Message {
+  id String @id @default(cuid())
+
+  conversationId String
+
+  senderId String
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  sender User @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+
+  message String @db.Text
+
+  messageType MessageType @default(TEXT)
+
+  isSeen Boolean @default(false)
+
+  seenAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([conversationId])
+  @@index([senderId])
+  @@index([createdAt])
+}

@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build outputs
+dist/
+**/dist/
+.vite/
+.turbo/
+.next/
+coverage/
+
+# Python virtual environments
+.venv/
+**/.venv/
+__pycache__/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Sensitive local files
+*.local
+*.pem
+*.key
+*.p12
+*.crt
+
+# Database local secrets
+/database/.env
+**/.env
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# OS/editor files
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
