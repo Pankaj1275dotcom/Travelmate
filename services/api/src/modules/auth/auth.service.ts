@@ -256,11 +256,16 @@ class AuthService {
                     expiresAt,
                 });
 
-            await this.sendOtpEmail(
+            // send verification email asynchronously so registration isn't blocked
+            this.sendOtpEmail(
                 result.email,
                 otp,
                 "Verify your TravelMate email"
-            );
+            ).catch((err) => {
+                // log the error but don't fail the registration
+                // eslint-disable-next-line no-console
+                console.error("Failed to send verification email:", err);
+            });
 
             return {
                 message:
