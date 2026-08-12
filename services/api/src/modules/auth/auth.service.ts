@@ -16,6 +16,14 @@ import {
 } from "./auth.types.js";
 
 class AuthService {
+    // helper methods used by controllers for existence checks
+    async findByEmail(email: string) {
+        return authRepository.findUserByEmail(email);
+    }
+
+    async findByPhone(phone: string) {
+        return authRepository.findUserByPhone(phone);
+    }
     private generateOtp(): string {
         return Math.floor(
             100000 +
