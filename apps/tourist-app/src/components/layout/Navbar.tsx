@@ -46,25 +46,25 @@ const roles = [
     {
         name: "Hotel Owner",
         icon: Hotel,
-        loginUrl: "http://localhost:5174/login",
-        registerUrl: "http://localhost:5174/register",
+        loginUrl: "https://travelmate-hotel-dashboard-lsu1-seven.vercel.app/login",
+        registerUrl: "https://travelmate-hotel-dashboard-lsu1-seven.vercel.app/register",
     },
     {
         name: "Guide",
         icon: Users,
-        loginUrl: "http://localhost:5175/login",
-        registerUrl: "http://localhost:5175/register",
+        loginUrl: "https://travelmate-guide-dashboard.vercel.app/login",
+        registerUrl: "https://travelmate-guide-dashboard.vercel.app/register",
     },
     {
         name: "Driver",
         icon: Car,
-        loginUrl: "http://localhost:5176/login",
-        registerUrl: "http://localhost:5176/register",
+        loginUrl: "https://travelmate-driver-dashboard.vercel.app/login",
+        registerUrl: "https://travelmate-driver-dashboard.vercel.app/register",
     },
     {
         name: "Admin",
         icon: ShieldCheck,
-        loginUrl: "http://localhost:5177/login",
+        loginUrl: "https://travelmate-admin-dashboard-946n.vercel.app/login",
     },
 ];
 
