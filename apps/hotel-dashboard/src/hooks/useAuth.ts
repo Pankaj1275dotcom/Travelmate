@@ -67,7 +67,7 @@ function useAuth() {
                         await hotelService.getMyHotel();
 
                     setCurrentHotel(
-                        hotel.data
+                        hotel.hotel
                     );
 
                     toast.success(

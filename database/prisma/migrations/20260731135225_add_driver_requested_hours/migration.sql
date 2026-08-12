@@ -1,5 +1,5 @@
 -- AlterTable
-ALTER TABLE `bookingitem` ADD COLUMN `driverRequestedHours` INTEGER NULL;
+ALTER TABLE `BookingItem` ADD COLUMN `driverRequestedHours` INTEGER NULL;
 
 -- AlterTable
-ALTER TABLE `tripcartitem` ADD COLUMN `driverRequestedHours` INTEGER NULL;
+ALTER TABLE `TripCartItem` ADD COLUMN `driverRequestedHours` INTEGER NULL;

@@ -1,5 +1,5 @@
 -- AlterTable
-ALTER TABLE `bookingitem` ADD COLUMN `driverEndDate` DATETIME(3) NULL,
+ALTER TABLE `BookingItem` ADD COLUMN `driverEndDate` DATETIME(3) NULL,
     ADD COLUMN `driverEndTime` VARCHAR(191) NULL,
     ADD COLUMN `driverStartDate` DATETIME(3) NULL,
     ADD COLUMN `driverStartTime` VARCHAR(191) NULL,
