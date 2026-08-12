@@ -10,6 +10,11 @@ router.post(
     authController.register
 );
 
+router.get(
+    "/check",
+    authController.check
+);
+
 router.post(
     "/verify-email",
     authController.verifyEmail

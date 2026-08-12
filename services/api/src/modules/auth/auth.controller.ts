@@ -48,6 +48,44 @@ class AuthController {
         }
     }
 
+    async check(
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            const { email, phone } = req.query as {
+                email?: string;
+                phone?: string;
+            };
+
+            const result: Record<string, boolean> = {};
+
+            if (email) {
+                const existing = await authService.findByEmail(
+                    String(email)
+                );
+
+                result.emailExists = !!existing;
+            }
+
+            if (phone) {
+                const existing = await authService.findByPhone(
+                    String(phone)
+                );
+
+                result.phoneExists = !!existing;
+            }
+
+            return res.status(200).json({
+                success: true,
+                data: result,
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+
     async verifyEmail(
         req: Request,
         res: Response,
