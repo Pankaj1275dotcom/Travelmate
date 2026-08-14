@@ -264,22 +264,27 @@ class AuthService {
                     expiresAt,
                 });
 
-            // send verification email asynchronously so registration isn't blocked
-            this.sendOtpEmail(
-                result.email,
-                otp,
-                "Verify your TravelMate email"
-            ).catch((err) => {
-                // log the error but don't fail the registration
-                // eslint-disable-next-line no-console
-                console.error("Failed to send verification email:", err);
-            });
+           try {
+    await this.sendOtpEmail(
+        result.email,
+        otp,
+        "Verify your TravelMate email"
+    );
+} catch (error) {
+    await authRepository.deleteUser(
+        result.id
+    );
 
-            return {
-                message:
-                    "Registration successful. Please verify your email.",
-                user: result,
-            };
+    throw new Error(
+        "Unable to send verification email. Please try registering again."
+    );
+}
+
+return {
+    message:
+        "Registration successful. Please verify your email.",
+    user: result,
+};
         }
 
         return {

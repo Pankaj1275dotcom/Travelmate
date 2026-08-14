@@ -18,10 +18,10 @@ async function start() {
         });
 
     } catch (error) {
-        console.error(
-            "❌ Database Connection Failed"
-        );
+        const message =
+            "❌ Database Connection Failed. Check DATABASE_URL, database host reachability, and whether the DB is publicly accessible from Render. If you are using Aiven/MySQL, ensure the host/port is allowed and the server is reachable from the deployment environment.";
 
+        console.error(message);
         console.error(error);
 
         process.exit(1);

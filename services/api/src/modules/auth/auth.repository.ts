@@ -43,6 +43,15 @@ class AuthRepository {
             data,
         });
     }
+    async deleteUser(
+    id: string
+): Promise<User> {
+    return prisma.user.delete({
+        where: {
+            id,
+        },
+    });
+}
 
     async createHotelOwner(
         userData: Prisma.UserCreateInput,
