@@ -184,13 +184,6 @@ function LoginPage() {
                                 <input type="checkbox" />
                                 Remember me
                             </label>
-
-                            <Link
-                                to="/forgot-password"
-                                className="text-blue-600 hover:underline"
-                            >
-                                Forgot Password?
-                            </Link>
                         </div>
 
                         <button

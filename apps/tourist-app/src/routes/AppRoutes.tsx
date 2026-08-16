@@ -5,8 +5,6 @@ import { ROUTES } from "../constants/routes";
 import HomePage from "../pages/home/HomePage";
 import LoginPage from "../pages/auth/LoginPage";
 import RegisterPage from "../pages/auth/RegisterPage";
-import ForgotPasswordPage from "../pages/auth/ForgotPasswordPage";
-import ResetPasswordPage from "../pages/auth/ResetPasswordPage";
 
 import HotelListPage from "../pages/hotels/HotelListPage";
 import HotelDetailsPage from "../pages/hotels/HotelDetailsPage";
@@ -41,16 +39,6 @@ function AppRoutes() {
                     path={ROUTES.REGISTER}
                     element={<RegisterPage />}
                 />
-
-<Route
-    path={ROUTES.FORGOT_PASSWORD}
-    element={<ForgotPasswordPage />}
-/>
-
-<Route
-    path={ROUTES.RESET_PASSWORD}
-    element={<ResetPasswordPage />}
-/>
 
                 <Route
                     path={ROUTES.HOTELS}

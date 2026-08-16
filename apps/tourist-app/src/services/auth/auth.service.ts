@@ -14,21 +14,6 @@ interface ApiResponse<T> {
     data: T;
 }
 
-interface EmailRequest {
-    email: string;
-}
-
-interface VerifyEmailRequest {
-    email: string;
-    otp: string;
-}
-
-interface ResetPasswordRequest {
-    email: string;
-    otp: string;
-    password: string;
-}
-
 class AuthService {
     async login(
         data: LoginRequest
@@ -63,54 +48,6 @@ class AuthService {
                     ...data,
                     role: data.role ?? "TOURIST",
                 }
-            );
-
-        return response.data;
-    }
-
-    async verifyEmail(
-        data: VerifyEmailRequest
-    ): Promise<ApiResponse<null>> {
-        const response =
-            await api.post<ApiResponse<null>>(
-                `${API.AUTH}/verify-email`,
-                data
-            );
-
-        return response.data;
-    }
-
-    async resendVerification(
-        data: EmailRequest
-    ): Promise<ApiResponse<null>> {
-        const response =
-            await api.post<ApiResponse<null>>(
-                `${API.AUTH}/resend-verification`,
-                data
-            );
-
-        return response.data;
-    }
-
-    async forgotPassword(
-        data: EmailRequest
-    ): Promise<ApiResponse<null>> {
-        const response =
-            await api.post<ApiResponse<null>>(
-                `${API.AUTH}/forgot-password`,
-                data
-            );
-
-        return response.data;
-    }
-
-    async resetPassword(
-        data: ResetPasswordRequest
-    ): Promise<ApiResponse<null>> {
-        const response =
-            await api.post<ApiResponse<null>>(
-                `${API.AUTH}/reset-password`,
-                data
             );
 
         return response.data;
