@@ -101,15 +101,13 @@ function RegisterPage() {
                 role: "TOURIST",
             }),
 
-    onSuccess: (response, data) => {
+    onSuccess: (response) => {
     toast.success(response.message);
 
     navigate(
-        ROUTES.VERIFY_EMAIL,
+        ROUTES.LOGIN,
         {
-            state: {
-                email: data.email,
-            },
+            replace: true,
         }
     );
 },

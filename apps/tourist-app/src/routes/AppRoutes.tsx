@@ -5,7 +5,6 @@ import { ROUTES } from "../constants/routes";
 import HomePage from "../pages/home/HomePage";
 import LoginPage from "../pages/auth/LoginPage";
 import RegisterPage from "../pages/auth/RegisterPage";
-import VerifyEmailPage from "../pages/auth/VerifyEmailPage";
 import ForgotPasswordPage from "../pages/auth/ForgotPasswordPage";
 import ResetPasswordPage from "../pages/auth/ResetPasswordPage";
 
@@ -42,10 +41,6 @@ function AppRoutes() {
                     path={ROUTES.REGISTER}
                     element={<RegisterPage />}
                 />
-                <Route
-    path={ROUTES.VERIFY_EMAIL}
-    element={<VerifyEmailPage />}
-/>
 
 <Route
     path={ROUTES.FORGOT_PASSWORD}

@@ -15,15 +15,16 @@ router.get(
     authController.check
 );
 
-router.post(
-    "/verify-email",
-    authController.verifyEmail
-);
-
-router.post(
-    "/resend-verification",
-    authController.resendVerification
-);
+// Verification endpoints disabled - OTP verification removed
+// router.post(
+//     "/verify-email",
+//     authController.verifyEmail
+// );
+//
+// router.post(
+//     "/resend-verification",
+//     authController.resendVerification
+// );
 
 router.post(
     "/forgot-password",

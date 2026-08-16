@@ -165,13 +165,9 @@ class AuthService {
                                     data.role,
                                 approvalStatus,
 
-                                emailVerified:
-                                    data.role !==
-                                    "TOURIST",
+                                emailVerified: true,
 
-                                phoneVerified:
-                                    data.role !==
-                                    "TOURIST",
+                                phoneVerified: true,
                             },
                         });
 
@@ -227,65 +223,6 @@ class AuthService {
                     return user;
                 }
             );
-
-        if (
-            data.role ===
-            "TOURIST"
-        ) {
-            const otp =
-                this.generateOtp();
-
-            const expiresAt =
-                new Date(
-                    Date.now() +
-                    10 * 60 * 1000
-                );
-
-            await authRepository
-                .deleteActiveVerifications(
-                    result.id,
-                    "EMAIL"
-                );
-
-            await authRepository
-                .createVerification({
-                    userId:
-                        result.id,
-
-                    type:
-                        "EMAIL",
-
-                    target:
-                        result.email,
-
-                    code:
-                        otp,
-
-                    expiresAt,
-                });
-
-           try {
-    await this.sendOtpEmail(
-        result.email,
-        otp,
-        "Verify your TravelMate email"
-    );
-} catch (error) {
-    await authRepository.deleteUser(
-        result.id
-    );
-
-    throw new Error(
-        "Unable to send verification email. Please try registering again."
-    );
-}
-
-return {
-    message:
-        "Registration successful. Please verify your email.",
-    user: result,
-};
-        }
 
         return {
             message:
@@ -617,15 +554,6 @@ return {
         if (!isPasswordValid) {
             throw new Error(
                 "Invalid email or password"
-            );
-        }
-
-        if (
-            user.role === "TOURIST" &&
-            !user.emailVerified
-        ) {
-            throw new Error(
-                "Please verify your email before logging in"
             );
         }
 
