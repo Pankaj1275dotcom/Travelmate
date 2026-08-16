@@ -32,12 +32,14 @@ export const registerSchema = z.object({
             "Password must contain uppercase, lowercase, number and special character"
         ),
 
-    role: z.enum([
-        "TOURIST",
-        "HOTEL_OWNER",
-        "GUIDE",
-        "DRIVER",
-    ]),
+    role: z
+        .enum([
+            "TOURIST",
+            "HOTEL_OWNER",
+            "GUIDE",
+            "DRIVER",
+        ])
+        .default("TOURIST"),
 });
 
 export const loginSchema = z.object({
@@ -50,13 +52,15 @@ export const loginSchema = z.object({
         .string()
         .min(1, "Password is required"),
 
-    role: z.enum([
-        "ADMIN",
-        "TOURIST",
-        "HOTEL_OWNER",
-        "GUIDE",
-        "DRIVER",
-    ]),
+    role: z
+        .enum([
+            "ADMIN",
+            "TOURIST",
+            "HOTEL_OWNER",
+            "GUIDE",
+            "DRIVER",
+        ])
+        .default("TOURIST"),
 });
 export const verifyEmailSchema = z.object({
     email: z

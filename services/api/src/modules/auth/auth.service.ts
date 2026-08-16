@@ -111,6 +111,9 @@ class AuthService {
     async register(
         data: RegisterUserDto
     ) {
+        const normalizedRole =
+            data.role ?? "TOURIST";
+
         const existingEmail =
             await authRepository.findUserByEmail(
                 data.email
@@ -140,8 +143,8 @@ class AuthService {
             );
 
         const approvalStatus =
-            data.role === "TOURIST" ||
-            data.role === "HOTEL_OWNER"
+            normalizedRole === "TOURIST" ||
+            normalizedRole === "HOTEL_OWNER"
                 ? "APPROVED"
                 : "PENDING";
 
@@ -162,7 +165,7 @@ class AuthService {
                                 password:
                                     hashedPassword,
                                 role:
-                                    data.role,
+                                    normalizedRole,
                                 approvalStatus,
 
                                 emailVerified: true,
@@ -172,7 +175,7 @@ class AuthService {
                         });
 
                     if (
-                        data.role ===
+                        normalizedRole ===
                         "DRIVER"
                     ) {
                         await tx.driver.create({
@@ -525,6 +528,9 @@ class AuthService {
     async login(
         data: LoginUserDto
     ) {
+        const normalizedRole =
+            data.role ?? "TOURIST";
+
         const user =
             await authRepository.findUserByEmail(
                 data.email
@@ -538,7 +544,7 @@ class AuthService {
 
         if (
             user.role !==
-            data.role
+            normalizedRole
         ) {
             throw new Error(
                 "Invalid email or password"

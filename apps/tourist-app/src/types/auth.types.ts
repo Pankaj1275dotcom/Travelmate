@@ -53,6 +53,7 @@ export interface AuthUser {
 export interface LoginRequest {
     email: string;
     password: string;
+    role?: "ADMIN" | "TOURIST" | "HOTEL_OWNER" | "GUIDE" | "DRIVER";
 }
 
 export interface RegisterRequest {
@@ -61,7 +62,7 @@ export interface RegisterRequest {
     email: string;
     phone: string;
     password: string;
-    role: "TOURIST";
+    role?: "TOURIST";
 }
 
 export interface AuthResponse {

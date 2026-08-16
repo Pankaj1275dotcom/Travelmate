@@ -46,7 +46,7 @@ class AuthService {
                 `${API.AUTH}/login`,
                 {
                     ...data,
-                    role: "TOURIST",
+                    role: data.role ?? "TOURIST",
                 }
             );
 
@@ -59,7 +59,10 @@ class AuthService {
         const response =
             await api.post<ApiResponse<AuthUser>>(
                 `${API.AUTH}/register`,
-                data
+                {
+                    ...data,
+                    role: data.role ?? "TOURIST",
+                }
             );
 
         return response.data;
